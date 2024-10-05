@@ -1,41 +1,25 @@
-import scipy.io
 import numpy as np
+import scipy.io
 
-# Define domain parameters
-L = 10.0  # Length of the domain
-H = 4.0   # Height of the domain
-D = 1.0   # Diameter of the cylinder
-U_inf = 1.0  # Freestream velocity
+# Set grid size and time steps
+N = 100  # Grid points in x and y
+T = 50   # Time steps
 
-# Create a meshgrid for the flow domain
-nx, ny = 200, 80  # Number of grid points in x and y directions
-x = np.linspace(0, L, nx)
-y = np.linspace(-H/2, H/2, ny)
-X, Y = np.meshgrid(x, y)
+# Generate grid coordinates and time points
+X_star = np.random.rand(N, 2)  # Random initial conditions for X and Y
+U_star = np.random.rand(N, 2, T)  # Random initial velocity fields for u (x) and v (y)
+P_star = np.random.rand(N, T)     # Random initial pressure field
+t_star = np.linspace(0, 2, T)     # Time vector
 
-# Initialize velocity field
-u = U_inf * np.ones_like(X)  # Uniform flow in the x-direction
-v = np.zeros_like(X)         # No initial velocity in the y-direction
+# `U_star[:, 0, :]` is the `u` velocity component (x-direction)
+# `U_star[:, 1, :]` is the `v` velocity component (y-direction)
 
-# Cylinder position
-xc, yc = L / 4, 0  # Cylinder center at (L/4, 0)
-r = np.sqrt((X - xc)**2 + (Y - yc)**2)  # Distance from cylinder center
+# Save the data in a .mat file
+scipy.io.savemat('initial_conditions_vortex_shedding.mat', {
+    'X_star': X_star,
+    'U_star': U_star,  # Contains both u and v components
+    'P_star': P_star,
+    't': t_star
+})
 
-# Set velocity inside the cylinder to zero (no-slip condition)
-u[r < D/2] = 0
-v[r < D/2] = 0
-
-# Initialize pressure field
-p = np.zeros_like(X)  # Uniform initial pressure
-
-# Create dictionary to save in .mat format
-data = {
-    'X': X,
-    'Y': Y,
-    'u': u,
-    'v': v,
-    'p': p
-}
-
-# Save the data to a .mat file
-scipy.io.savemat('vortex_shedding_initial_conditions.mat', data)
+print("Initial conditions (u, v, p) saved to initial_conditions_vortex_shedding.mat")
